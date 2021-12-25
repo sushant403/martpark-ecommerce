@@ -28,9 +28,9 @@
             <h6 class="modal-title">{{__('eSewa Online Payment Gateway')}}</h6>
             <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
-          <form action="{{route('front.checkout.submit')}}" method="POST">
+          <form action="{{route('front.esewa.submit')}}" method="POST">
             @csrf
-            <input type="hidden" name="payment_method" value="Esewa" id="esewa">
+            <input type="hidden" name="payment_method" value="Esewa" id="Esewa">
             <div class="card-body">
               <p>
                 <h5>Total Amount: <b>{{PriceHelper::setCurrencyPrice($grand_total)}}</b></h5>

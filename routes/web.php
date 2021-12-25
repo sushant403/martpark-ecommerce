@@ -422,9 +422,14 @@ Route::prefix('user')->group(function() {
     Route::post('/sslcommerz/submit', 'Payment\SslCommerzController@store')->name('front.sslcommerz.submit');
 
     //Nepali Payment Gateway
-    Route::post('/esewa/notify', 'Payment\EsewaController@notify')->name('front.esewa.notify');
-    Route::post('/esewa/submit', 'Payment\EsewaController@store')->name('front.esewa.submit');
-    Route::get('/checkout/esewa/notify', 'Front\CheckoutController@esewaRedirect')->name('front.checkout.esewa.redirect');
+    Route::post('/checkout/payment/esewa/process', 'Payment\EsewaController@payment')->name('front.esewa.submit');
+    Route::get('/checkout/payment/esewa/completed', 'Payment\EsewaController@completed')->name('front.esewa.notify');
+
+    Route::get('/checkout/payment/failed', [
+      'name' => 'eSewa Payment Failed',
+      'as' => 'checkout.payment.esewa.failed',
+      'uses' => 'EsewaController@failed',
+  ]);
 
     // ----------- TRACK ORDER ----------//
     Route::get('/track/order', 'Front\FrontendController@trackOrder')->name('front.order.track');

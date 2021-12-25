@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Omnipay\Omnipay;
+
 class Transaction extends Model
 {
     protected $fillable = ['order_id','amount','email','txn_id','currency_sign','currency_value'];

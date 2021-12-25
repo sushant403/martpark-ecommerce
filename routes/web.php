@@ -418,9 +418,13 @@ Route::prefix('user')->group(function() {
     Route::post('/paytm/submit', 'Payment\PaytmController@store')->name('front.paytm.submit');
     Route::post('/mercadopago/submit', 'Payment\MercadopagoController@store')->name('front.mercadopago.submit');
     Route::post('/authorize/submit', 'Payment\AuthorizeController@store')->name('front.authorize.submit');
-
     Route::post('/sslcommerz/notify', 'Payment\SslCommerzController@notify')->name('front.sslcommerz.notify');
     Route::post('/sslcommerz/submit', 'Payment\SslCommerzController@store')->name('front.sslcommerz.submit');
+
+    //Nepali Payment Gateway
+    Route::post('/esewa/notify', 'Payment\EsewaController@notify')->name('front.esewa.notify');
+    Route::post('/esewa/submit', 'Payment\EsewaController@store')->name('front.esewa.submit');
+    Route::get('/checkout/esewa/notify', 'Front\CheckoutController@esewaRedirect')->name('front.checkout.esewa.redirect');
 
     // ----------- TRACK ORDER ----------//
     Route::get('/track/order', 'Front\FrontendController@trackOrder')->name('front.order.track');

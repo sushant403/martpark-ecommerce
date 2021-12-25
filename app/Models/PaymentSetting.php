@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Omnipay\Omnipay;
+
 use Illuminate\Database\Eloquent\Model;
 
 class PaymentSetting extends Model

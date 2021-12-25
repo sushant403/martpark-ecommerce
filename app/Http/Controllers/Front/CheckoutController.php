@@ -7,6 +7,7 @@ use App\{
     Models\PaymentSetting,
     Traits\StripeCheckout,
     Traits\MollieCheckout,
+    Traits\EsewaCheckout,
     Traits\PaypalCheckout,
     Traits\PaystackCheckout,
     Http\Controllers\Controller,
@@ -36,6 +37,9 @@ class CheckoutController extends Controller
     }
     use MollieCheckout {
         MollieCheckout::__construct as private __MollieConstruct;
+    }
+    use EsewaCheckout {
+        EsewaCheckout::__construct as private __EsewaConstruct;
     }
 
     use BankCheckout;
@@ -271,16 +275,27 @@ class CheckoutController extends Controller
 
         // use currency check
         $usd_supported = ['USD','EUR'];
+        $stripe_supported = ['USD','NPR','EUR'];
         $paystack_supported = ['NGN'];
+        $nepali_supported = ['NPR'];
         switch ($input['payment_method']) {
            
             case 'Stripe':
-                if(!in_array($currency->name,$usd_supported)){
+                if(!in_array($currency->name,$stripe_supported)){
                     Session::flash('error',__('Currency Not Supported'));
                     return redirect()->back();
                 }
                 $checkout = true;
                 $payment = $this->stripeSubmit($input);
+            break;
+
+            case 'Esewa':
+                if(!in_array($currency->name,$nepali_supported)){
+                    Session::flash('error',__('Only NPR [Nepalese Rupees] Supported.'));
+                    return redirect()->back();
+                }
+                $checkout = true;
+                $payment = $this->esewaSubmit($input);
             break;
 
             case 'Paypal':
@@ -376,6 +391,27 @@ class CheckoutController extends Controller
         $responseData['payment_id'] = $payment->id;
         if($payment->status == 'paid'){
             $payment = $this->mollieNotify($responseData);
+            if($payment['status']){
+                return redirect()->route('front.checkout.success');
+            }else{
+                Session::put('message',$payment['message']);
+                return redirect()->route('front.checkout.cancle');
+            }
+        }else{
+            return redirect()->route('front.checkout.cancle'); 
+        }
+        
+    }
+
+    public function esewaRedirect(Request $request)
+	{
+       
+        $responseData = $request->all();
+        
+        $payment = Mollie::api()->payments()->get(Session::get('payment_id'));
+        $responseData['payment_id'] = $payment->id;
+        if($payment->status == 'paid'){
+            $payment = $this->esewaNotify($responseData);
             if($payment['status']){
                 return redirect()->route('front.checkout.success');
             }else{

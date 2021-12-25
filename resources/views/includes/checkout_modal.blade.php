@@ -20,6 +20,33 @@
           </div>
         </div>
       </div>
+      <!-- Modal esewa payment-->
+     <div class="modal fade" id="esewa" tabindex="-1"  aria-hidden="true">
+      <div class="modal-dialog" >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title">{{__('eSewa Online Payment Gateway')}}</h6>
+            <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <form action="{{route('front.checkout.submit')}}" method="POST">
+            @csrf
+            <input type="hidden" name="payment_method" value="Esewa" id="esewa">
+            <div class="card-body">
+              <p>
+                <h5>Total Amount: <b>{{PriceHelper::setCurrencyPrice($grand_total)}}</b></h5>
+                  Click the button below to pay via eSewa Checkout Page.<br>
+                  <img class="my-3" src="https://blog.esewa.com.np/assets/upload/images/esewa%20logo%200001-01.png" width="90"><br>
+                  <small>Please Contact eSewa Support - <a href="tel:9804442435">+9779804442435</a>, if any issues occurs during the payment process.</small>
+              </p>
+            </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button class="btn btn-primary btn-sm" type="submit">{{__('Goto eSewa Checkout')}}</button>
+          </form>
+          </div>
+        </div>
+      </div>
+    </div>
         <!-- Modal MOLLIE -->
       <div class="modal fade" id="mollie" tabindex="-1"  aria-hidden="true">
         <div class="modal-dialog" >

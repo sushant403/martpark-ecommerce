@@ -89,6 +89,13 @@
 
               @endforeach
 
+              <div class="single-payment-method">
+                <a class="text-decoration-none" href="#" data-bs-toggle="modal" data-bs-target="#esewa">
+                    <img class="" src="https://blog.esewa.com.np/assets/upload/images/esewa%20logo%200001-01.png" alt="eSewa-Payment" title="Pay via eSewa Payment Gateway">
+                    <p>eSewa Online Payment</p>
+                </a>
+              </div>
+
             </div>
           </div>
         </div>

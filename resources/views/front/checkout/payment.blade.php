@@ -96,6 +96,14 @@
                 </a>
               </div>
 
+              <div class="single-payment-method">
+                {{-- <a class="text-decoration-none border-0" href="#" data-bs-toggle="modal" data-bs-target="#khalti"> --}}
+                <button class="text-decoration-none border-0" id="payment-button">
+                    <img class="" src="https://www.nepalitimes.com/wp-content/uploads/2021/07/Khalti-collaborations.png" alt="Khalti-Payment" title="Pay via Khalti Gateway">
+                    <p>Khalti Payment</p>
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -111,3 +119,67 @@
   </div>
 @endsection
 
+@section('styleplugins')
+<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js"></script>
+@endsection
+
+@section('script')
+<script>
+  var config = {
+      // replace the publicKey with yours
+      "publicKey": "{{ config('services.khalti.khalti_public_key') }}",
+      "productIdentity": "1234567890",
+      "productName": "Dragon",
+      "productUrl": "https://projects.sushantp.com.np/martpark",
+      "paymentPreference": [
+          "KHALTI",
+          "EBANKING",
+          "MOBILE_BANKING",
+          "CONNECT_IPS",
+          "SCT",
+          ],
+      "eventHandler": {
+          onSuccess (payload) {
+              // hit merchant api for initiating verfication
+              $.ajax({
+                  type : 'POST',
+                  url : "{{ route('front.khalti.submit') }}",
+                  data: {
+                      token : payload.token,
+                      amount : payload.amount,
+                      "_token" : "{{ csrf_token() }}"
+                  },
+                  success : function(res){
+                      $.ajax({
+                          type : "POST",
+                          url : "{{ route('front.khalti.notify') }}",
+                          data : {
+                              response : res,
+                              "_token" : "{{ csrf_token() }}"
+                          },
+                          success: function(res){
+                              console.log('Transaction Successfull');
+                          }
+                      });
+                      console.log(res);
+                  }
+              });
+              console.log(payload);
+          },
+          onError (error) {
+              console.log(error);
+          },
+          onClose () {
+              console.log('widget is closing');
+          }
+      }
+  };
+
+  var checkout = new KhaltiCheckout(config);
+  var btn = document.getElementById("payment-button");
+  btn.onclick = function () {
+      // minimum transaction amount must be 10, i.e 1000 in paisa.
+      checkout.show({amount: 1000});
+  }
+</script>
+@endsection

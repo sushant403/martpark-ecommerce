@@ -478,7 +478,7 @@
 $data = App\Models\PaymentSetting::whereUniqueKeyword('paystack')->first();
 $paydata = $data->convertJsonData();
 @endphp
-@section('script')
+@section('scripts')
 <script src="https://js.paystack.co/v1/inline.js"></script>
   <script>
 

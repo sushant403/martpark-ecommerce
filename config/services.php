@@ -35,4 +35,9 @@ return [
         'sandbox' => env('ESEWA_SANDBOX'),
     ],
 
+    'khalti' => [
+        'khalti_secret_key' => env('KHALTI_SECRET_KEY'),
+        'khalti_public_key' => env('KHALTI_PUBLIC_KEY'),
+    ],
+
 ];

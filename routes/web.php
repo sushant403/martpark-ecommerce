@@ -421,15 +421,14 @@ Route::prefix('user')->group(function() {
     Route::post('/sslcommerz/notify', 'Payment\SslCommerzController@notify')->name('front.sslcommerz.notify');
     Route::post('/sslcommerz/submit', 'Payment\SslCommerzController@store')->name('front.sslcommerz.submit');
 
-    //Nepali Payment Gateway
+    //ESEWA Nepali Payment Gateway
     Route::post('/checkout/payment/esewa/process', 'Payment\EsewaController@payment')->name('front.esewa.submit');
     Route::get('/checkout/payment/esewa/completed', 'Payment\EsewaController@completed')->name('front.esewa.notify');
+    Route::get('/checkout/payment/failed', ['name' => 'eSewa Payment Failed', 'as' => 'checkout.payment.esewa.failed', 'uses' => 'EsewaController@failed']);
 
-    Route::get('/checkout/payment/failed', [
-      'name' => 'eSewa Payment Failed',
-      'as' => 'checkout.payment.esewa.failed',
-      'uses' => 'EsewaController@failed',
-  ]);
+    //Khalti Nepali Payment Gateway
+    Route::post('/khalti/payment/verify', 'Payment\KhaltiController@verifyPayment')->name('front.khalti.submit');
+    Route::get('/khalti/payment/store', 'Payment\KhaltiController@storePayment')->name('front.khalti.notify');
 
     // ----------- TRACK ORDER ----------//
     Route::get('/track/order', 'Front\FrontendController@trackOrder')->name('front.order.track');

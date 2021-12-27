@@ -3,21 +3,17 @@
         // replace the publicKey with yours
         "publicKey": "{{ config('services.khalti.khalti_public_key') }}",
         "productIdentity": "1234567890",
-        "productName": "Dragon",
-        "productUrl": "http://gameofthrones.wikia.com/wiki/Dragons",
+        "productName": "{{env('APP_NAME')}}",
+        "productUrl": "{{env('APP_URL')}}",
         "paymentPreference": [
-            "KHALTI",
-            "EBANKING",
-            "MOBILE_BANKING",
-            "CONNECT_IPS",
-            "SCT",
+            "KHALTI", "EBANKING", "MOBILE_BANKING", "CONNECT_IPS", "SCT",
             ],
         "eventHandler": {
             onSuccess (payload) {
                 // hit merchant api for initiating verfication
                 $.ajax({
                     type : 'POST',
-                    url : "{{ route('khalti.verifyPayment') }}",
+                    url : "{{ route('front.khalti.submit') }}",
                     data: {
                         token : payload.token,
                         amount : payload.amount,
@@ -26,13 +22,13 @@
                     success : function(res){
                         $.ajax({
                             type : "POST",
-                            url : "{{ route('khalti.storePayment') }}",
+                            url : "{{ route('front.khalti.notify') }}",
                             data : {
                                 response : res,
                                 "_token" : "{{ csrf_token() }}"
                             },
                             success: function(res){
-                                console.log('transaction successfull');
+                                console.log('Transaction Successfull');
                             }
                         });
                         console.log(res);
@@ -44,15 +40,16 @@
                 console.log(error);
             },
             onClose () {
-                console.log('widget is closing');
+                console.log('Widget is Closing');
+                window.location.reload();
             }
         }
     };
-
+  
     var checkout = new KhaltiCheckout(config);
     var btn = document.getElementById("payment-button");
     btn.onclick = function () {
         // minimum transaction amount must be 10, i.e 1000 in paisa.
-        checkout.show({amount: 1000});
+        checkout.show({amount: {{round($grand_total * PriceHelper::setCurrencyValue(),2)}} * 100});
     }
 </script>

@@ -19,6 +19,9 @@
                         amount : payload.amount,
                         "_token" : "{{ csrf_token() }}"
                     },
+                    beforeSend: function (res) {
+                    $("body").addClass("loading");
+                    },
                     success : function(res){
                         $.ajax({
                             type : "POST",
@@ -29,6 +32,7 @@
                             },
                             success: function(res){
                                 console.log('Transaction Successfull');
+                                window.location.href = "{{ route('front.checkout.success') }}";
                             }
                         });
                         console.log(res);

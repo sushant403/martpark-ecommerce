@@ -3,6 +3,7 @@
     {{__('Payment')}}
 @endsection
 @section('content')
+<div class="overlay"><p>Do not refresh the page! Transaction is Processing...</p></div>
     <!-- Page Title-->
 <div class="page-title">
     <div class="container">
@@ -98,10 +99,10 @@
 
               <div class="single-payment-method">
                 {{-- <a class="text-decoration-none border-0" href="#" data-bs-toggle="modal" data-bs-target="#khalti"> --}}
-                <button class="text-decoration-none border-0" id="payment-button">
+                <a class="text-decoration-none" href="javascript:" id="payment-button">
                     <img class="" src="https://www.nepalitimes.com/wp-content/uploads/2021/07/Khalti-collaborations.png" alt="Khalti-Payment" title="Pay via Khalti Gateway">
                     <p>Khalti Payment</p>
-                </button>
+                </a>
               </div>
 
             </div>
@@ -121,6 +122,30 @@
 
 @section('styleplugins')
 <script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js"></script>
+<style>
+  .overlay{
+      display: none;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 999;
+      background: rgba(255,255,255,0.8) url("{{ asset('assets/front/loader.gif') }}") center no-repeat;
+  }
+  /* Turn off scrollbar when body element has the loading class */
+  body.loading{
+      overflow: hidden;   
+  }
+  /* Make spinner image visible when body element has the loading class */
+  body.loading .overlay{
+      display: block;
+  }
+  body.loading .overlay p{
+        margin-top: 200px;
+        text-align: center;
+    }
+  </style>
 @endsection
 
 @section('script')

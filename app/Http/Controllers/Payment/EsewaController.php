@@ -245,6 +245,7 @@ class EsewaController extends Controller
 
                 Session::put('order_id', $order->id);
                 Session::forget('cart');
+                Session::forget('coupon');
                 Session::forget('discount');
                 if ($discount) {
                     $coupon_id = $discount['code']['id'];

@@ -428,7 +428,7 @@ Route::prefix('user')->group(function() {
 
     //Khalti Nepali Payment Gateway
     Route::post('/khalti/payment/verify', 'Payment\KhaltiController@verifyPayment')->name('front.khalti.submit');
-    Route::get('/khalti/payment/store', 'Payment\KhaltiController@storePayment')->name('front.khalti.notify');
+    Route::post('/khalti/payment/store', 'Payment\KhaltiController@storePayment')->name('front.khalti.notify');
 
     // ----------- TRACK ORDER ----------//
     Route::get('/track/order', 'Front\FrontendController@trackOrder')->name('front.order.track');

@@ -367,6 +367,8 @@ let extra_index_url = '{{route('front.extraindex')}}';
 
 <!-- JavaScript (jQuery) libraries, plugins and custom scripts-->
 <script type="text/javascript" src="{{asset('assets/front/js/plugins.min.js')}}"></script>
+{{-- <script type="text/javascript" src="{{asset('assets/front/js/jquery.card.js')}}"></script>
+<script type="text/javascript" src="{{asset('assets/front/js/card.js')}}"></script> --}}
 <script type="text/javascript" src="{{asset('assets/back/js/plugin/bootstrap-notify/bootstrap-notify.min.js')}}"></script>
 <script type="text/javascript" src="{{asset('assets/front/js/scripts.min.js')}}"></script>
 <script type="text/javascript" src="{{asset('assets/front/js/lazy.min.js')}}"></script>

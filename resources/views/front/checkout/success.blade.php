@@ -37,11 +37,15 @@
             <p class="card-text">{{__('Your order has been placed and will be processed as soon as possible.')}}</p>
             <p class="card-text">{{__('Make sure you make note of your order number, which is')}} <span class="text-medium">{{$order->transaction_number}}</span></p>
             <p class="card-text">{{__('You will be receiving an email shortly with confirmation of your order.')}}</p>
+
+            <div class="pt-0">
+              <a class="btn btn-outline-secondary m-2" href="{{route('user.order.invoice', [$order->id])}}"><i class="icon-file-text pr-2"></i> {{__('View Invoice')}}</a>
+              <a class="btn btn-outline-secondary m-2" href="{{route('user.dashboard')}}"><i class="icon-user pr-2"></i> {{__('Go to Dashboard')}}</a>
+            </div>
+
             <div class="padding-top-1x padding-bottom-1x">
-
-                <a class="btn btn-outline-primary m-4" href="{{route('front.catalog')}}"><i class="icon-package pr-2"></i>{{__('View our products again')}}</a>
-
-              </div>
+            <a class="btn btn-outline-primary m-2" href="{{route('front.catalog')}}"><i class="icon-package pr-2"></i> {{__('View our products again')}}</a>
+            </div>
           </div>
         </div>
         </div>

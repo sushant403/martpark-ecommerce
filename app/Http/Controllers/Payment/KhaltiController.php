@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use App\Models\PaymentSetting;
 use App\Models\ShippingService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -101,7 +102,6 @@ class KhaltiController extends Controller
 
 
 
-    
     public function storePayment(Request $request)
     {
         $user = Auth::user();
@@ -135,80 +135,93 @@ class KhaltiController extends Controller
         $grand_total = $grand_total - ($discount ? $discount['discount'] : 0);
         $total_amount = PriceHelper::setConvertPrice($grand_total);
 
-        dd('Payment Transaction Successful via Khalti Gateway');
-        $response = $request->response;
+        // dd('Payment Transaction Successful via Khalti Gateway');
 
-        // dd($response);
+        // if ($status_code == 200) {
+        
+            
+        $txnid = $request->payload;
 
-        // $txnid = $response->idx;
+        $orderData['cart'] = json_encode($cart, true);
+        $orderData['discount'] = json_encode($discount, true);
+        $orderData['shipping'] = json_encode($shipping, true);
+        $orderData['tax'] = $total_tax;
+        $orderData['shipping_info'] = json_encode(Session::get('shipping_address'), true);
+        $orderData['billing_info'] = json_encode(Session::get('billing_address'), true);
+        $orderData['payment_method'] = 'Khalti Gateway';
+        $orderData['txnid'] = $txnid;
+        $orderData['user_id'] = $user->id;
+        $orderData['payment_status'] = 'Paid';
+        $orderData['order_status'] = 'Pending';
+        $orderData['transaction_number'] = Str::random(10);
+        $orderData['currency_sign'] = PriceHelper::setCurrencySign();
+        $orderData['currency_value'] = PriceHelper::setCurrencyValue();
+        $order = $user->orders()->create($orderData);
 
-        if ('Completed' === $response['name']) {
+        PriceHelper::Transaction($order->id, $order->transaction_number, $user->email, PriceHelper::OrderTotal($order));
+        PriceHelper::LicenseQtyDecrese($cart);
 
-
-            // $order = Order::where('txnid', $oid)->first();
-            $transaction_id = $request->get('refId');
-
-            $orderData['cart'] = json_encode($cart, true);
-            $orderData['discount'] = json_encode($discount, true);
-            $orderData['shipping'] = json_encode($shipping, true);
-            $orderData['tax'] = $total_tax;
-            $orderData['shipping_info'] = json_encode(Session::get('shipping_address'), true);
-            $orderData['billing_info'] = json_encode(Session::get('billing_address'), true);
-            $orderData['payment_method'] = 'Khalti Gateway';
-            $orderData['txnid'] = $txnid;
-            $orderData['user_id'] = $user->id;
-            $orderData['payment_status'] = 'Paid';
-            $orderData['order_status'] = 'Pending';
-            $orderData['transaction_number'] = Str::random(10);
-            $orderData['currency_sign'] = PriceHelper::setCurrencySign();
-            $orderData['currency_value'] = PriceHelper::setCurrencyValue();
-            $order = $user->orders()->create($orderData);
-
-            PriceHelper::Transaction($order->id, $order->transaction_number, $user->email, PriceHelper::OrderTotal($order));
-            PriceHelper::LicenseQtyDecrese($cart);
-
-            Notification::create([
-                'order_id' => $order->id
-            ]);
-
-            $emailData = [
-                'to' => $user->email,
-                'type' => "Order",
-                'user_name' => $user->displayName(),
-                'order_cost' => $total_amount,
-                'transaction_number' => $order->transaction_number,
-                'site_title' => Setting::first()->title,
-            ];
-
-            $email = new EmailHelper();
-            $email->sendTemplateMail($emailData);
-
-            Session::put('order_id', $order->id);
-            Session::forget('cart');
-            Session::forget('discount');
-            if ($discount) {
-                $coupon_id = $discount['code']['id'];
-                $get_coupon = PromoCode::findOrFail($coupon_id);
-                $get_coupon->no_of_times -= 1;
-                $get_coupon->update();
-            }
-            $setting = Setting::first();
-            if ($setting->is_twilio == 1) {
-                // message
-                $sms = new SmsHelper();
-                $user_number = $order->user->phone;
-                if ($user_number) {
-                    $sms->SendSms($user_number, "'purchase'");
-                }
-            }
-            return redirect()->route('front.checkout.success');
-        } else {
-            return redirect()->route('front.checkout.cancle')->with([
-                'message' => 'The payment has been declined. Order is now Pending and is Unpaid.',
-            ]);
+        if (Session::has('copon')) {
+            $code = PromoCode::find(Session::get('copon')['code']['id']);
+            $code->no_of_times--;
+            $code->update();
         }
-        return redirect()->route('front.khalti.notify')->with([
-            'message' => 'Thank you for your shopping, However, the payment has been declined.',
+        TrackOrder::create([
+            'title' => 'Pending',
+            'order_id' => $order->id,
         ]);
+
+        Notification::create([
+            'order_id' => $order->id
+        ]);
+
+        $emailData = [
+            'to' => $user->email,
+            'type' => "Order",
+            'user_name' => $user->displayName(),
+            'order_cost' => $total_amount,
+            'transaction_number' => $order->transaction_number,
+            'site_title' => Setting::first()->title,
+        ];
+
+        $email = new EmailHelper();
+        $email->sendTemplateMail($emailData);
+
+        foreach (json_decode($order->cart, true) as $id => $product) {
+            $vendor_id[] = $user = Item::findOrFail($id)->user->id;
+        }
+
+        if ($discount) {
+            $coupon_id = $discount['code']['id'];
+            $get_coupon = PromoCode::findOrFail($coupon_id);
+            $get_coupon->no_of_times -= 1;
+            $get_coupon->update();
+        }
+
+        Session::forget('coupon');
+        Session::put('order_id', $order->id);
+        Session::forget('cart');
+        Session::forget('discount');
+
+        $setting = Setting::first();
+        if ($setting->is_twilio == 1) {
+            // message
+            $sms = new SmsHelper();
+            $user_number = $order->user->phone;
+            if ($user_number) {
+                $sms->SendSms($user_number, "'purchase'");
+            }
+        }
+
+        return redirect()->route('front.checkout.success');
+
+        // } else {
+        //     return redirect()->route('front.checkout.cancle')->with([
+        //         'message' => 'The payment has been declined. Order is now Pending and is Unpaid.',
+        //     ]);
+        // }
+        // return redirect()->route('front.checkout.cancle')->with([
+        //     'message' => 'The payment has been declined. Order is now Pending and is Unpaid.',
+        // ]);
     }
 }
